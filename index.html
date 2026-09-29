@@ -66,6 +66,12 @@
       margin-top: 2px;
     }
 
+    .header-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
     .lang-toggle {
       font-size: 0.75rem;
       letter-spacing: 0.08em;
@@ -76,6 +82,27 @@
       cursor: pointer;
     }
     .lang-toggle:hover {
+      background: var(--black);
+      color: var(--white);
+      border-color: var(--black);
+    }
+    /* External link icon on project title row */
+    .project-external-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      margin-left: 6px;
+      font-size: 0.7rem;
+      color: var(--gray-mid);
+      border: 1px solid var(--gray-border);
+      border-radius: 50%;
+      transition: all 0.15s;
+      flex-shrink: 0;
+      vertical-align: middle;
+    }
+    .project-external-link:hover {
       background: var(--black);
       color: var(--white);
       border-color: var(--black);
@@ -240,18 +267,31 @@
     /* Project list */
     .project-list { padding-top: 8px; }
 
+    /* ============================================================
+       VIEW MODE A: LIST (default — 展开式)
+       点击项目行展开/收起媒体区域
+    ============================================================ */
     .project-item {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 1fr auto auto;
       align-items: start;
-      gap: 24px;
+      gap: 16px;
       padding: 22px 0;
       border-bottom: 1px solid var(--gray-border);
       transition: opacity 0.12s;
+      position: relative;
+      cursor: pointer;
     }
     .project-item:first-child { border-top: 1px solid var(--gray-border); margin-top: 24px; }
     .project-item:hover { opacity: 0.7; }
+    .project-item.expanded { cursor: default; }
+    .project-item.expanded:hover { opacity: 1; }
+
     .project-item { color: inherit; }
+
+    .project-title-wrap {
+      min-width: 0;
+    }
 
     .project-title {
       font-size: 0.95rem;
@@ -294,16 +334,111 @@
       padding: 2px 8px;
     }
 
-    /* Detailed project (with video, description, etc.) */
-    .project-detail {
-      flex: 1;
+    /* Expand indicator arrow */
+    .expand-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      padding-top: 3px;
+      color: var(--gray-mid);
+      font-size: 0.65rem;
+      transition: transform 0.2s;
+      flex-shrink: 0;
     }
+    .project-item.expanded .expand-indicator {
+      transform: rotate(180deg);
+    }
+
+    /* Media drawer (expand) */
+    .media-drawer {
+      display: none;
+      grid-column: 1 / -1;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--gray-border);
+    }
+    .project-item.expanded .media-drawer {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+
+    /* Media grid inside drawer */
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .media-grid img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display: block;
+      background: var(--gray-light);
+    }
+    .media-grid video {
+      width: 100%;
+      aspect-ratio: 16/9;
+      display: block;
+      background: var(--black);
+    }
+
+    /* Full-width video embed in drawer */
+    .media-video-embed {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+    .media-video-embed iframe,
+    .media-video-embed video {
+      width: 100%;
+      aspect-ratio: 16/9;
+      display: block;
+      border: none;
+    }
+
+    /* Caption under media */
+    .media-caption {
+      font-size: 0.75rem;
+      color: var(--gray-mid);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    /* Placeholder when no media */
+    .media-placeholder {
+      background: var(--gray-light);
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      color: var(--gray-mid);
+      border: 1px dashed var(--gray-border);
+      margin-bottom: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    /* ============================================================
+       Game Theater detail block (collapsible)
+    ============================================================ */
+    .project-detail-wrapper {
+      grid-column: 1 / -1;
+      display: none;
+    }
+    .project-item.expanded .project-detail-wrapper {
+      display: block;
+      animation: fadeIn 0.2s ease;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--gray-border);
+    }
+
     .project-detail .project-title {
       margin-bottom: 8px;
     }
-    .project-authors .zh {
-      display: block;
-    }
+    .project-authors .zh { display: block; }
     .project-authors .en {
       display: block;
       color: var(--gray-mid);
@@ -313,15 +448,10 @@
     /* Language switching override for authors */
     body.lang-en .project-authors .zh { display: none !important; }
     body:not(.lang-en) .project-authors .en { display: none !important; }
-    .project-info p {
-      margin-bottom: 4px;
-    }
-    .project-description p {
-      margin-bottom: 8px;
-    }
-    .project-research {
-      font-style: italic;
-    }
+
+    .project-info p { margin-bottom: 4px; }
+    .project-description p { margin-bottom: 8px; }
+    .project-research { font-style: italic; }
     .project-poster img {
       max-height: 600px;
       object-fit: contain;
@@ -453,7 +583,7 @@
         padding: 20px;
       }
       .main-content { padding: 0 20px 40px; }
-      .project-item { grid-template-columns: 1fr auto; }
+      .project-item { grid-template-columns: 1fr auto auto; }
       .timeline-item { grid-template-columns: 1fr; gap: 4px; }
       .about-grid { grid-template-columns: 1fr; }
     }
@@ -482,31 +612,34 @@
         ZINN (LIU Ziyin)
         <span>hello world</span>
       </div>
-      <button class="lang-toggle" onclick="toggleLang(this)">EN</button>
+      <div class="header-controls">
+        <button class="lang-toggle" onclick="toggleLang(this)">EN</button>
+      </div>
     </div>
 
     <div class="identity-tags">
-      <span class="tag" data-lang="zh">科技艺术策展人</span>
-      <span class="tag" data-lang="en">SciArt Curator</span>
-      <span class="tag" data-lang="zh">研究员</span>
-      <span class="tag" data-lang="en">Researcher</span>
-      <span class="tag" data-lang="zh">艺术家</span>
-      <span class="tag" data-lang="en">Artist</span>
+      <span class="tag" data-lang="zh">博物馆学</span>
+      <span class="tag" data-lang="en">Museology</span>
+      <span class="tag" data-lang="zh">科技艺术</span>
+      <span class="tag" data-lang="en">SciArt</span>
       <span class="tag" data-lang="zh">项目统筹</span>
-      <span class="tag" data-lang="en">Project Manager</span>
-      <span class="tag" data-lang="zh">剧场演出</span>
-      <span class="tag" data-lang="en">Performance</span>
+      <span class="tag" data-lang="en">Project Lead</span>
+      <span class="tag" data-lang="zh">艺术&剧场</span>
+      <span class="tag" data-lang="en">Art &amp; Theatre</span>
     </div>
 
     <p class="bio-line" data-lang="zh" style="line-height: 1.8;">
-      <a href="https://airs.cuhk.edu.cn/en" target="_blank" style="border-bottom: 1px solid var(--gray-border);">深圳市人工智能与机器人研究院</a> <a href="https://sciartcolab.cargo.site/exhibitions" target="_blank" style="border-bottom: 1px solid var(--gray-border);">科学+艺术联合实验室</a> 主创<br />
+      <a href="https://www.sustech.edu.cn/" target="_blank" style="border-bottom: 1px solid var(--gray-border);">南方科技大学</a> <a href="http://mii.sustech.edu.cn/" target="_blank" style="border-bottom: 1px solid var(--gray-border);">博物馆创新研究院</a> 副院长；博物馆智能机器人(筹) 负责人<br />
       <a href="https://www.uabb-sz.com/en/exhibition/details/3a156045867647769ddb293176467f65?tab=works" target="_blank" style="border-bottom: 1px solid var(--gray-border);">第十届深港城市\建筑双城双年展</a> UABB 执行策展人<br />
-      <a href="https://www.media.mit.edu/posts/research-at-scale/" target="_blank" style="border-bottom: 1px solid var(--gray-border);">MIT媒体实验室驻留</a> 策展人
+      <a href="https://www.media.mit.edu/posts/research-at-scale/" target="_blank" style="border-bottom: 1px solid var(--gray-border);">MIT媒体实验室驻留</a> 策展人<br />
+      曾任 <a href="https://airs.cuhk.edu.cn/en" target="_blank" style="border-bottom: 1px solid var(--gray-border);">深圳市人工智能与机器人研究院</a> <a href="https://sciartcolab.cargo.site/exhibitions" target="_blank" style="border-bottom: 1px solid var(--gray-border);">科学+艺术联合实验室</a> 主创
     </p>
     <p class="bio-line" data-lang="en" style="line-height: 1.8;">
-      <a href="https://airs.cuhk.edu.cn/en" target="_blank" style="border-bottom: 1px solid var(--gray-border);">Shenzhen Institute of Artificial Intelligence and Robotics for Society</a> · Founding Member, <a href="https://sciartcolab.cargo.site/exhibitions" target="_blank" style="border-bottom: 1px solid var(--gray-border);">SciArt Co-Lab</a><br />
-      Executive Curator, <a href="https://www.uabb-sz.com/en/exhibition/details/3a156045867647769ddb293176467f65?tab=works" target="_blank" style="border-bottom: 1px solid var(--gray-border);">2025 Urbanism/Architecture Bi-city Biennale</a><br />
-      <a href="https://www.media.mit.edu/posts/research-at-scale/" target="_blank" style="border-bottom: 1px solid var(--gray-border);">MIT Research at Scale Residency</a> Curator
+      Deputy Director, <a href="http://mii.sustech.edu.cn/" target="_blank" style="border-bottom: 1px solid var(--gray-border);">Museum Innovation Institute (MII)</a>, <a href="https://www.sustech.edu.cn/" target="_blank" style="border-bottom: 1px solid var(--gray-border);">SUSTech</a>;<br />
+      Director of Museum Intelligent Robotics (preparatory)<br />
+      Executive Curator, <a href="https://www.uabb-sz.com/en/exhibition/details/3a156045867647769ddb293176467f65?tab=works" target="_blank" style="border-bottom: 1px solid var(--gray-border);">The 10th SZ-HK Bi-City Biennale of Urbanism\Architecture (UABB)</a><br />
+      Curator, <a href="https://www.media.mit.edu/posts/research-at-scale/" target="_blank" style="border-bottom: 1px solid var(--gray-border);">MIT Research at Scale Residency</a><br />
+      Former Founding Member, <a href="https://sciartcolab.cargo.site/exhibitions" target="_blank" style="border-bottom: 1px solid var(--gray-border);">SciArt Co-Lab</a>, <a href="https://airs.cuhk.edu.cn/en" target="_blank" style="border-bottom: 1px solid var(--gray-border);">Shenzhen Institute of Artificial Intelligence and Robotics for Society (AIRS)</a>
     </p>
   </header>
 
@@ -515,12 +648,10 @@
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
-      <!-- Search -->
       <div class="search-wrap">
         <input class="search-input" type="text" placeholder="Search" id="searchInput" oninput="handleSearch(this.value)" />
       </div>
 
-      <!-- Navigation -->
       <div class="sidebar-section">
         <a class="nav-link active" href="javascript:void(0)" onclick="filterProjects('Curatorial', this); return false;">
           <span data-lang="zh">策展</span><span data-lang="en">Curation</span>
@@ -547,168 +678,386 @@
       <section class="content-section visible" id="section-works">
         <div class="project-list" id="projectList">
 
-          <a class="project-item" href="https://www.uabb-sz.com/en/exhibition/details/3a156045867647769ddb293176467f65?tab=team" target="_blank" data-category="Curatorial" data-title="第十届深港城市建筑双城双年展 2025UABB The 10th Bi-City Biennale of Urbanism Architecture">
-            <div class="project-title">
-              <span class="en">The 10th Shenzhen-HK Bi-City Biennale of Urbanism / Architecture (UABB) · Executive curator</span>
-              <span class="zh">第十届深港城市建筑双城双年展 UABB｜执行策展人</span>
+          <!-- ============================================================
+               策展 Curatorial
+               data-ext-link: 外部链接，会在标题行显示一个 ↗ 按钮
+          ============================================================ -->
+
+          <!-- UABB -->
+          <div class="project-item"
+               data-category="Curatorial"
+               data-title="第十届深港城市建筑双城双年展 2025UABB The 10th Bi-City Biennale of Urbanism Architecture"
+               data-ext-link="https://www.uabb-sz.com/en/exhibition/details/3a156045867647769ddb293176467f65?tab=team"
+               onclick="toggleExpand(this)">
+
+
+            <div class="project-title-wrap">
+              <div class="project-title">
+                <span class="en">The 10th Shenzhen-HK Bi-City Biennale of Urbanism / Architecture (UABB) · Executive curator</span>
+                <span class="zh">第十届深港城市建筑双城双年展 UABB｜执行策展人</span>
+              </div>
               <div class="project-meta">
                 <span class="project-tag">Curation</span>
                 <span class="project-tag" data-lang="zh">城市剧场：建筑 X 艺术 X 科学</span>
                 <span class="project-tag" data-lang="en">Urban Theater: Architecture X Art X Science</span>
               </div>
             </div>
-            <div class="project-year">2025-2026</div>
-          </a>
 
-          <a class="project-item" href="https://media.mit.edu/posts/research-at-scale" target="_blank" data-category="Curatorial" data-title="MIT Research at Scale Residency Curator">
-            <div class="project-title">
-              <span class="en">MIT Research at Scale Residency Curator</span>
-              <span class="zh">MIT媒体实验室驻留 策展人</span>
+            <div class="project-year">2025-2026</div>
+            <span class="expand-indicator">&#x25BC;</span>
+
+            <!-- 媒体展开区 -->
+            <div class="media-drawer">
+              <p class="media-caption" data-lang="zh" style="margin-bottom: 12px;">
+                <a href="https://www.uabb-sz.com/en/exhibition/details/3a156045867647769ddb293176467f65?tab=works" target="_blank" style="border-bottom:1px solid var(--gray-border);">在 uabb-sz.com 查看展览详情 →</a>
+              </p>
+              <p class="media-caption" data-lang="en" style="margin-bottom: 12px;">
+                <a href="https://www.uabb-sz.com/en/exhibition/details/3a156045867647769ddb293176467f65?tab=works" target="_blank" style="border-bottom:1px solid var(--gray-border);">View exhibition details on uabb-sz.com →</a>
+              </p>
+              <!-- ▼ 替换为真实图片
+              <div class="media-grid">
+                <div>
+                  <img src="images/uabb-01.jpg" alt="UABB展览现场">
+                  <p class="media-caption">展览现场 · 罗湖展场</p>
+                </div>
+                <div>
+                  <img src="images/uabb-02.jpg" alt="UABB开幕">
+                  <p class="media-caption">开幕式</p>
+                </div>
+              </div>
+              -->
+              <!-- ▼ B站嵌入示例
+              <div class="media-video-embed">
+                <iframe src="https://player.bilibili.com/player.html?bvid=BV1xxxxxxxxxxxx&autoplay=0"
+                  scrolling="no" border="0" frameborder="no" allowfullscreen="true"></iframe>
+                <p class="media-caption">项目宣传片</p>
+              </div>
+              -->
+              <div class="media-placeholder">暂无媒体 · 在上方链接添加图片或视频</div>
+            </div>
+          </div>
+
+
+          <!-- MIT Residency -->
+          <div class="project-item"
+               data-category="Curatorial"
+               data-title="MIT Research at Scale Residency Curator"
+               data-ext-link="https://media.mit.edu/posts/research-at-scale"
+               onclick="toggleExpand(this)">
+
+
+            <div class="project-title-wrap">
+              <div class="project-title">
+                <span class="en">MIT Research at Scale Residency Curator</span>
+                <span class="zh">MIT媒体实验室驻留 策展人</span>
+              </div>
               <div class="project-meta">
                 <span class="project-tag">Curation</span>
                 <span class="project-tag" data-lang="zh">国际科技艺术驻留与研讨会项目</span>
                 <span class="project-tag" data-lang="en">International SciArt Residency and Symposium Program</span>
               </div>
             </div>
-            <div class="project-year">2025 & 2026</div>
-          </a>
 
-          <a class="project-item" href="https://scalablehci.com/" target="_blank" data-category="Curatorial" data-title="Scalable HCI Symposium General Chair">
-            <div class="project-title">
-              <span class="en">Scalable HCI Symposium General Chair</span>
-              <span class="zh">Scalable HCI人机交互研讨会 主席</span>
+            <div class="project-year">2025 &amp; 2026</div>
+            <span class="expand-indicator">&#x25BC;</span>
+
+            <div class="media-drawer">
+              <p class="media-caption" data-lang="zh" style="margin-bottom: 12px;">
+                <a href="https://media.mit.edu/posts/research-at-scale" target="_blank" style="border-bottom:1px solid var(--gray-border);">在 media.mit.edu 查看 →</a>
+              </p>
+              <p class="media-caption" data-lang="en" style="margin-bottom: 12px;">
+                <a href="https://media.mit.edu/posts/research-at-scale" target="_blank" style="border-bottom:1px solid var(--gray-border);">View on media.mit.edu →</a>
+              </p>
+              <div class="media-placeholder">暂无媒体 · 在上方链接添加图片或视频</div>
+            </div>
+          </div>
+
+
+          <!-- Scalable HCI -->
+          <div class="project-item"
+               data-category="Curatorial"
+               data-title="Scalable HCI Symposium General Chair"
+               data-ext-link="https://scalablehci.com/"
+               onclick="toggleExpand(this)">
+
+
+            <div class="project-title-wrap">
+              <div class="project-title">
+                <span class="en">Scalable HCI Symposium General Chair</span>
+                <span class="zh">Scalable HCI人机交互研讨会 主席</span>
+              </div>
               <div class="project-meta">
                 <span class="project-tag">Curation</span>
               </div>
             </div>
+
             <div class="project-year">2025</div>
-          </a>
+            <span class="expand-indicator">&#x25BC;</span>
 
-          <div class="project-item" data-category="Curatorial" data-title="深圳机器人剧场 Shenzhen Robot Theater 顶层策划 主策 Top Planning Chief Planner">
-            <div class="project-title">
-              <span class="en">Shenzhen Robot Theater · Top Planning · Chief Planner</span>
-              <span class="zh">深圳机器人剧场 · 顶层策划 · 主策</span>
+            <div class="media-drawer">
+              <p class="media-caption" data-lang="zh" style="margin-bottom: 12px;">
+                <a href="https://scalablehci.com/" target="_blank" style="border-bottom:1px solid var(--gray-border);">在 scalablehci.com 查看 →</a>
+              </p>
+              <p class="media-caption" data-lang="en" style="margin-bottom: 12px;">
+                <a href="https://scalablehci.com/" target="_blank" style="border-bottom:1px solid var(--gray-border);">View on scalablehci.com →</a>
+              </p>
+              <div class="media-placeholder">暂无媒体 · 在上方链接添加图片或视频</div>
+            </div>
+          </div>
+
+
+          <!-- 深圳机器人剧场 -->
+          <div class="project-item"
+               data-category="Curatorial"
+               data-title="深圳机器人剧场 Shenzhen Robot Theater 顶层策划 主策 Top Planning Chief Planner"
+               onclick="toggleExpand(this)">
+
+
+            <div class="project-title-wrap">
+              <div class="project-title">
+                <span class="en">Shenzhen Robot Theater · Top Planning · Chief Planner</span>
+                <span class="zh">深圳机器人剧场 · 顶层策划 · 主策</span>
+              </div>
               <div class="project-meta">
                 <span class="project-tag">Curation</span>
               </div>
             </div>
+
             <div class="project-year">2022-2023</div>
+            <span class="expand-indicator">&#x25BC;</span>
+
+            <div class="media-drawer">
+              <div class="media-placeholder">暂无媒体 · 添加图片或视频</div>
+            </div>
           </div>
 
-          <a class="project-item" href="https://airs.cuhk.edu.cn/article/1273" target="_blank" data-category="Curatorial" data-title="The Question of The Question AI Robotics Art Exhibition AIRS">
-            <div class="project-title">
-              <span class="en">Executive curator for AI &amp; Robotics-themed art &amp; tech exhibition: 'The Question of The Question' for Shenzhen Institute of Artificial Intelligence and Robotics for Society (AIRS)</span>
-              <span class="zh">AI与机器人主题科技艺术展览 - 问题的问题 ｜执行策展人</span>
+
+          <!-- 问题的问题 -->
+          <div class="project-item"
+               data-category="Curatorial"
+               data-title="The Question of The Question AI Robotics Art Exhibition AIRS"
+               data-ext-link="https://airs.cuhk.edu.cn/article/1273"
+               onclick="toggleExpand(this)">
+
+
+            <div class="project-title-wrap">
+              <div class="project-title">
+                <span class="en">Executive curator for AI &amp; Robotics-themed art &amp; tech exhibition: 'The Question of The Question' for AIRS</span>
+                <span class="zh">AI与机器人主题科技艺术展览 - 问题的问题 ｜执行策展人</span>
+              </div>
               <div class="project-meta">
                 <span class="project-tag">Curation</span>
                 <span class="project-tag">AIRSpace · 深圳市人工智能与机器人研究院</span>
               </div>
             </div>
+
             <div class="project-year">2024</div>
-          </a>
+            <span class="expand-indicator">&#x25BC;</span>
 
-          <a class="project-item" href="https://airs.cuhk.edu.cn/article/998" target="_blank" data-category="Curatorial" data-title="The Deduction of The Question AIRS art exhibition">
-            <div class="project-title">
-              <span class="en">Executive curator for AI &amp; Robotics-themed art &amp; tech exhibition: 'The Deduction of The Question' for AIRS</span>
-              <span class="zh">AI与机器人主题科技艺术展览 - 问题演绎 ｜执行策展人</span>
+            <div class="media-drawer">
+              <p class="media-caption" data-lang="zh" style="margin-bottom: 12px;">
+                <a href="https://airs.cuhk.edu.cn/article/1273" target="_blank" style="border-bottom:1px solid var(--gray-border);">在 airs.cuhk.edu.cn 查看 →</a>
+              </p>
+              <p class="media-caption" data-lang="en" style="margin-bottom: 12px;">
+                <a href="https://airs.cuhk.edu.cn/article/1273" target="_blank" style="border-bottom:1px solid var(--gray-border);">View on airs.cuhk.edu.cn →</a>
+              </p>
+              <div class="media-placeholder">暂无媒体 · 在上方链接添加图片或视频</div>
+            </div>
+          </div>
+
+
+          <!-- 问题演绎 -->
+          <div class="project-item"
+               data-category="Curatorial"
+               data-title="The Deduction of The Question AIRS art exhibition"
+               data-ext-link="https://airs.cuhk.edu.cn/article/998"
+               onclick="toggleExpand(this)">
+
+
+            <div class="project-title-wrap">
+              <div class="project-title">
+                <span class="en">Executive curator for AI &amp; Robotics-themed art &amp; tech exhibition: 'The Deduction of The Question' for AIRS</span>
+                <span class="zh">AI与机器人主题科技艺术展览 - 问题演绎 ｜执行策展人</span>
+              </div>
               <div class="project-meta">
                 <span class="project-tag">Curation</span>
                 <span class="project-tag">AIRSpace · 深圳市人工智能与机器人研究院</span>
               </div>
             </div>
-            <div class="project-year">2023</div>
-          </a>
 
-          <div class="project-item" data-category="Curatorial" data-title="Shenzhen Natural History Museum 深圳自然博物馆">
-            <div class="project-title">
-              <span class="en">Shenzhen Natural History Museum · Exhibition Content · Chief Planner</span>
-              <span class="zh">深圳自然博物馆 · 展陈内容 · 策划负责人</span>
+            <div class="project-year">2023</div>
+            <span class="expand-indicator">&#x25BC;</span>
+
+            <div class="media-drawer">
+              <p class="media-caption" data-lang="zh" style="margin-bottom: 12px;">
+                <a href="https://airs.cuhk.edu.cn/article/998" target="_blank" style="border-bottom:1px solid var(--gray-border);">在 airs.cuhk.edu.cn 查看 →</a>
+              </p>
+              <p class="media-caption" data-lang="en" style="margin-bottom: 12px;">
+                <a href="https://airs.cuhk.edu.cn/article/998" target="_blank" style="border-bottom:1px solid var(--gray-border);">View on airs.cuhk.edu.cn →</a>
+              </p>
+              <div class="media-placeholder">暂无媒体 · 在上方链接添加图片或视频</div>
+            </div>
+          </div>
+
+
+          <!-- 深圳自然博物馆 -->
+          <div class="project-item"
+               data-category="Curatorial"
+               data-title="Shenzhen Natural History Museum 深圳自然博物馆"
+               onclick="toggleExpand(this)">
+
+
+            <div class="project-title-wrap">
+              <div class="project-title">
+                <span class="en">Shenzhen Natural History Museum · Exhibition Content · Chief Planner</span>
+                <span class="zh">深圳自然博物馆 · 展陈内容 · 策划负责人</span>
+              </div>
               <div class="project-meta">
                 <span class="project-tag">Curation</span>
               </div>
             </div>
+
             <div class="project-year">2022-2023</div>
+            <span class="expand-indicator">&#x25BC;</span>
+
+            <div class="media-drawer">
+              <div class="media-placeholder">暂无媒体 · 添加图片或视频</div>
+            </div>
           </div>
 
-          <!-- Game Theater - Works Category -->
-          <div class="project-item" data-category="Works" data-title="博弈剧场 Game Theater 机器人剧场系列影像 Robot Theater Series">
-            <div class="project-detail">
-              <!-- Poster Image -->
-              <div class="project-poster" style="margin-bottom: 20px;">
-                <img src="Poster- Gaming Theater.png" alt="博弈剧场海报 Game Theater Poster" style="width: 100%; max-width: 800px; display: block;">
-              </div>
 
+          <!-- ============================================================
+               作品 Works — 博弈剧场（可折叠）
+          ============================================================ -->
+          <div class="project-item"
+               data-category="Works"
+               data-title="博弈剧场 Game Theater 机器人剧场系列影像 Robot Theater Series"
+               onclick="toggleExpand(this)">
+
+            <!-- 缩略图：海报图 -->
+
+            <div class="project-title-wrap">
               <div class="project-title">
                 <span class="en">Game Theater — Robot Theater Series</span>
                 <span class="zh" style="color: var(--black); font-size: 0.95rem; line-height: 1.5;">博弈剧场——机器人剧场系列影像</span>
               </div>
-
-              <!-- Authors -->
-              <div class="project-authors" style="margin-top: 8px; font-size: 0.9rem; color: var(--black);">
-                <span data-lang="zh">刘紫茵、高源</span>
-                <span data-lang="en">LIU Ziyin (Zinn), GAO Yuan (Alex)</span>
-              </div>
-
-              <div class="project-meta" style="margin-top: 12px;">
+              <div class="project-meta" style="margin-top: 8px;">
                 <span class="project-tag">Artwork</span>
               </div>
+            </div>
 
-              <!-- Collection Info -->
-              <div class="project-info" style="margin-top: 16px;">
-                <p data-lang="zh" style="font-size: 0.85rem; line-height: 1.5; margin-bottom: 8px;">
-                  收藏于深圳湾文化广场
-                </p>
-                <p data-lang="en" style="font-size: 0.85rem; line-height: 1.5; margin-bottom: 8px;">
-                  Collected by Shenzhen Bay Cultural Plaza
-                </p>
-              </div>
+            <div class="project-year"></div>
+            <span class="expand-indicator">&#x25BC;</span>
 
-              <!-- Description -->
-              <div class="project-description" style="margin-top: 16px;">
-                <p data-lang="zh" style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 12px;">
-                  「博弈剧场」将机器人围捕实验中的异构多智能体的"演员-评论家"协同框架，引入一个极简、抽象的拟真实验剧场中，将人形、轮式、四足机器人及无人机等多构型机器人，设定为追捕者、躲避者、通讯员、交涉者、观察员、代理人、工人等角色，通过交涉、协作、追捕、规避、博弈等策略与机器人形成不断生长的剧场与动态关系，仿佛一个缩微的人机社会结构：持续迭代、策略演化。作品以多视角影像，揭示了一种由人、技术与组织构成的复杂交织状态，而观众亦作为人类节点与观察者视角参与剧中。
-                </p>
-                <p data-lang="en" style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 12px;">
-                  Game Theater introduces the heterogeneous multi-agent 'actor-critic' collaborative framework from robotic research experiment, into a minimal and abstract simulated experimental theater. Within this arena, robots of diverse configurations including humanoid, wheeled, quadruped, and aerial drones are assigned roles such as catcher, runner, communicator, negotiator, observer, obstacle and agent. Through strategies of negotiation, collaboration, chase, evasion, and game dynamics, humans and robots co-construct a evolving theatrical and performative field. The dynamic system resembles a miniaturized human-robot social structure, with constant iteration and strategic evolution. Through diverse perspectives, this work reveals a complex entanglement of humans and technological systems. Audience also participates as a human node and observer as it unfolds...
-                </p>
-              </div>
+            <!-- 展开的完整内容 -->
+            <div class="project-detail-wrapper">
+              <div class="project-detail">
 
-              <!-- Research Basis -->
-              <div class="project-research" style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #e0e0e0;">
-                <p data-lang="zh" style="font-size: 0.82rem; line-height: 1.5; margin-bottom: 6px; color: #666;">
-                  基于机器人科研实验
-                </p>
-                <p data-lang="en" style="font-size: 0.82rem; line-height: 1.5; margin-bottom: 6px; color: #666;">
-                  Based on Robotic Research Experiment
-                </p>
-                <p data-lang="zh" style="font-size: 0.8rem; line-height: 1.4; color: #888;">
-                  多项成果刊登于机器人顶级期刊 IEEE
-                </p>
-                <p data-lang="en" style="font-size: 0.8rem; line-height: 1.4; color: #888;">
-                  Multiple research outcomes have been published in leading IEEE robotics journals
-                </p>
-              </div>
+                <!-- Authors -->
+                <div class="project-authors" style="margin-top: 8px; font-size: 0.9rem; color: var(--black);">
+                  <span data-lang="zh">刘紫茵、高源</span>
+                  <span data-lang="en">LIU Ziyin (Zinn), GAO Yuan (Alex)</span>
+                </div>
 
-              <!-- Video Placeholder -->
-              <div class="project-video" style="margin-top: 24px; width: 100%; max-width: 100%;">
-                <!-- TODO: Add video embed code here -->
-                <!-- Example for YouTube: <iframe width="100%" height="400" src="https://www.youtube.com/embed/VIDEO_ID" frameborder="0" allowfullscreen></iframe> -->
-                <!-- Example for local video: <video width="100%" controls><source src="path/to/video.mp4" type="video/mp4"></video> -->
-                <div style="background: #f5f5f5; height: 400px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
-                  <span style="color: #999; font-size: 0.9rem;">Video placeholder - Please provide video URL or file</span>
+                <!-- Collection Info -->
+                <div class="project-info" style="margin-top: 16px;">
+                  <p data-lang="zh" style="font-size: 0.85rem; line-height: 1.5; margin-bottom: 8px;">
+                    收藏于深圳湾文化广场
+                  </p>
+                  <p data-lang="en" style="font-size: 0.85rem; line-height: 1.5; margin-bottom: 8px;">
+                    Collected by Shenzhen Bay Cultural Plaza
+                  </p>
+                </div>
+
+                <!-- Poster Image (full width when expanded) -->
+                <div class="project-poster" style="margin-top: 20px;">
+                  <img src="Poster- Gaming Theater.png" alt="博弈剧场海报 Game Theater Poster" style="width: 100%; max-width: 800px; display: block;">
+                </div>
+
+                <!-- Description -->
+                <div class="project-description" style="margin-top: 20px;">
+                  <p data-lang="zh" style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 12px;">
+                    「博弈剧场」将机器人围捕实验中的异构多智能体的"演员-评论家"协同框架，引入一个极简、抽象的拟真实验剧场中，将人形、轮式、四足机器人及无人机等多构型机器人，设定为追捕者、躲避者、通讯员、交涉者、观察员、代理人、工人等角色，通过交涉、协作、追捕、规避、博弈等策略与机器人形成不断生长的剧场与动态关系，仿佛一个缩微的人机社会结构：持续迭代、策略演化。作品以多视角影像，揭示了一种由人、技术与组织构成的复杂交织状态，而观众亦作为人类节点与观察者视角参与剧中。
+                  </p>
+                  <p data-lang="en" style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 12px;">
+                    Game Theater introduces the heterogeneous multi-agent 'actor-critic' collaborative framework from robotic research experiment, into a minimal and abstract simulated experimental theater. Within this arena, robots of diverse configurations including humanoid, wheeled, quadruped, and aerial drones are assigned roles such as catcher, runner, communicator, negotiator, observer, obstacle and agent. Through strategies of negotiation, collaboration, chase, evasion, and game dynamics, humans and robots co-construct a evolving theatrical and performative field. The dynamic system resembles a miniaturized human-robot social structure, with constant iteration and strategic evolution. Through diverse perspectives, this work reveals a complex entanglement of humans and technological systems. Audience also participates as a human node and observer as it unfolds...
+                  </p>
+                </div>
+
+                <!-- Research Basis -->
+                <div class="project-research" style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #e0e0e0;">
+                  <p data-lang="zh" style="font-size: 0.82rem; line-height: 1.5; margin-bottom: 6px; color: #666;">
+                    基于机器人科研实验
+                  </p>
+                  <p data-lang="en" style="font-size: 0.82rem; line-height: 1.5; margin-bottom: 6px; color: #666;">
+                    Based on Robotic Research Experiment
+                  </p>
+                  <p data-lang="zh" style="font-size: 0.8rem; line-height: 1.4; color: #888;">
+                    多项成果刊登于机器人顶级期刊 IEEE
+                  </p>
+                  <p data-lang="en" style="font-size: 0.8rem; line-height: 1.4; color: #888;">
+                    Multiple research outcomes have been published in leading IEEE robotics journals
+                  </p>
+                </div>
+
+                <!-- Video Area -->
+                <div style="margin-top: 24px; width: 100%;">
+                  <!-- ▼ 替换为真实视频：B站嵌入示例
+                  <div class="media-video-embed">
+                    <iframe src="https://player.bilibili.com/player.html?bvid=BV1xxxxxxxxxxxx&autoplay=0"
+                      scrolling="no" border="0" frameborder="no" allowfullscreen="true"></iframe>
+                    <p class="media-caption">博弈剧场视频</p>
+                  </div>
+                  -->
+                  <!-- ▼ 本地视频示例
+                  <div class="media-video-embed">
+                    <video controls>
+                      <source src="videos/game-theater.mp4" type="video/mp4">
+                    </video>
+                    <p class="media-caption">博弈剧场视频</p>
+                  </div>
+                  -->
+                  <div style="background: #f5f5f5; height: 300px; display: flex; align-items: center; justify-content: center; border-radius: 4px; border: 1px dashed var(--gray-border);">
+                    <span style="color: #999; font-size: 0.85rem;">视频占位符 · 替换为 B站/YouTube iframe 或本地 .mp4</span>
+                  </div>
+                </div>
+
+                <!-- Additional Images -->
+                <div style="margin-top: 20px;">
+                  <!-- ▼ 额外图片示例
+                  <div class="media-grid">
+                    <div>
+                      <img src="images/game-theater-01.jpg" alt="博弈剧场现场">
+                      <p class="media-caption">展览现场</p>
+                    </div>
+                    <div>
+                      <img src="images/game-theater-02.jpg" alt="博弈剧场截图">
+                      <p class="media-caption">影像截图</p>
+                    </div>
+                  </div>
+                  -->
                 </div>
               </div>
             </div>
-            <div class="project-year"></div>
           </div>
 
 
+          <!-- ============================================================
+               演出 Performance
+          ============================================================ -->
 
-          <!-- Performance Projects -->
-          <div class="project-item" data-category="Performance" data-title="ALGORAVE Shenzhen 深圳算法锐舞演出">
-            <div class="project-title">
-              <span class="en">ALGORAVE Shenzhen · Producer</span>
-              <span class="zh">深圳算法锐舞演出 · 主策</span>
+          <!-- ALGORAVE Shenzhen -->
+          <div class="project-item"
+               data-category="Performance"
+               data-title="ALGORAVE Shenzhen 深圳算法锐舞演出"
+               onclick="toggleExpand(this)">
+
+
+            <div class="project-title-wrap">
+              <div class="project-title">
+                <span class="en">ALGORAVE Shenzhen · Producer</span>
+                <span class="zh">深圳算法锐舞演出 · 主策</span>
+              </div>
               <div class="project-meta">
                 <span class="project-tag">Performance</span>
                 <span class="project-tag" data-lang="zh">机器人剧场</span>
@@ -717,93 +1066,213 @@
                 <span class="project-tag" data-lang="en">Livecoding</span>
               </div>
             </div>
+
             <div class="project-year">2026</div>
+            <span class="expand-indicator">&#x25BC;</span>
+
+            <div class="media-drawer">
+              <div class="media-placeholder">暂无媒体 · 添加图片或视频</div>
+            </div>
           </div>
 
-          <div class="project-item" data-category="Performance" data-title="陆上海上 At Land At Sea 蛇口戏剧节 Shekou Theater Festival">
-            <div class="project-title">
-              <span class="en">At Land At Sea | Contemporary Performance and Film | Shekou Theater Festival</span>
-              <span class="zh">陆上海上（At Land At Sea）｜当代表演与影像｜蛇口戏剧节</span>
+
+          <!-- 陆上海上 -->
+          <div class="project-item"
+               data-category="Performance"
+               data-title="陆上海上 At Land At Sea 蛇口戏剧节 Shekou Theater Festival"
+               onclick="toggleExpand(this)">
+
+
+            <div class="project-title-wrap">
+              <div class="project-title">
+                <span class="en">At Land At Sea | Contemporary Performance and Film | Shekou Theater Festival</span>
+                <span class="zh">陆上海上（At Land At Sea）｜当代表演与影像｜蛇口戏剧节</span>
+              </div>
               <div class="project-meta">
                 <span class="project-tag">Performance</span>
                 <span class="project-tag" data-lang="zh">制作人、导演、表演者兼舞者</span>
                 <span class="project-tag" data-lang="en">Producer, director, performer and dancer</span>
               </div>
             </div>
+
             <div class="project-year">2022</div>
+            <span class="expand-indicator">&#x25BC;</span>
+
+            <div class="media-drawer">
+              <div class="media-placeholder">暂无媒体 · 添加图片或视频</div>
+            </div>
           </div>
 
-          <div class="project-item" data-category="Performance" data-title="解绑 Unwired 深圳艺穗节 Shenzhen Fringe Festival">
-            <div class="project-title">
-              <span class="en">Unwired | Shenzhen Fringe Festival</span>
-              <span class="zh">解绑（Unwired）｜深圳艺穗节</span>
+
+          <!-- 解绑 -->
+          <div class="project-item"
+               data-category="Performance"
+               data-title="解绑 Unwired 深圳艺穗节 Shenzhen Fringe Festival"
+               onclick="toggleExpand(this)">
+
+
+            <div class="project-title-wrap">
+              <div class="project-title">
+                <span class="en">Unwired | Shenzhen Fringe Festival</span>
+                <span class="zh">解绑（Unwired）｜深圳艺穗节</span>
+              </div>
               <div class="project-meta">
                 <span class="project-tag">Performance</span>
                 <span class="project-tag" data-lang="zh">表演者兼舞者，参与当代舞蹈、新空间戏剧演出</span>
                 <span class="project-tag" data-lang="en">Performer and dancer in the contemporary performance</span>
               </div>
             </div>
+
             <div class="project-year">2022</div>
+            <span class="expand-indicator">&#x25BC;</span>
+
+            <div class="media-drawer">
+              <div class="media-placeholder">暂无媒体 · 添加图片或视频</div>
+            </div>
           </div>
 
-          <div class="project-item" data-category="Performance" data-title="圆方广场舞 Round Square Dance 深圳云美术馆 Cloud Art Museum">
-            <div class="project-title">
-              <span class="en">Round Square Dance | Cloud Art Museum, Shenzhen (Community Art Museum)</span>
-              <span class="zh">圆方广场舞 | 深圳云美术馆（社区美术馆）</span>
+
+          <!-- 圆方广场舞 -->
+          <div class="project-item"
+               data-category="Performance"
+               data-title="圆方广场舞 Round Square Dance 深圳云美术馆 Cloud Art Museum"
+               onclick="toggleExpand(this)">
+
+
+            <div class="project-title-wrap">
+              <div class="project-title">
+                <span class="en">Round Square Dance | Cloud Art Museum, Shenzhen (Community Art Museum)</span>
+                <span class="zh">圆方广场舞 | 深圳云美术馆（社区美术馆）</span>
+              </div>
               <div class="project-meta">
                 <span class="project-tag">Performance</span>
                 <span class="project-tag" data-lang="zh">带领社区演出工作坊，与当地居民共创</span>
                 <span class="project-tag" data-lang="en">Lead community dance workshop, co-create with local residents</span>
-                <span class="project-tag" data-lang="zh">表演者兼舞者，参与当代舞蹈、新空间戏剧演出</span>
-                <span class="project-tag" data-lang="en">Performer and dancer in the contemporary performance</span>
               </div>
             </div>
+
             <div class="project-year">2022</div>
+            <span class="expand-indicator">&#x25BC;</span>
+
+            <div class="media-drawer">
+              <div class="media-placeholder">暂无媒体 · 添加图片或视频</div>
+            </div>
           </div>
 
-          <div class="project-item" data-category="Performance" data-title="一念之间 KSANA 深圳云美术馆 Cloud Art Museum">
-            <div class="project-title">
-              <span class="en">KSANA | Cloud Art Museum, Shenzhen (Community Art Museum)</span>
-              <span class="zh">一念之间｜深圳云美术馆（社区美术馆）</span>
+
+          <!-- 一念之间 -->
+          <div class="project-item"
+               data-category="Performance"
+               data-title="一念之间 KSANA 深圳云美术馆 Cloud Art Museum"
+               onclick="toggleExpand(this)">
+
+
+            <div class="project-title-wrap">
+              <div class="project-title">
+                <span class="en">KSANA | Cloud Art Museum, Shenzhen (Community Art Museum)</span>
+                <span class="zh">一念之间｜深圳云美术馆（社区美术馆）</span>
+              </div>
               <div class="project-meta">
                 <span class="project-tag">Performance</span>
-                <span class="project-tag" data-lang="zh">带领社区摄影工作坊，与当地居民共创</span>
-                <span class="project-tag" data-lang="en">Solo Photography Project Exhibition & Community Photography Exhibition</span>
                 <span class="project-tag" data-lang="zh">个人摄影项目展览及社区居民摄影展览</span>
-                <span class="project-tag" data-lang="en">Lead community dance workshop, co-create with local residents</span>
+                <span class="project-tag" data-lang="en">Solo Photography Project Exhibition &amp; Community Photography Exhibition</span>
               </div>
             </div>
+
             <div class="project-year">2021</div>
+            <span class="expand-indicator">&#x25BC;</span>
+
+            <div class="media-drawer">
+              <!-- ▼ 摄影作品示例
+              <div class="media-grid">
+                <div>
+                  <img src="images/ksana-01.jpg" alt="一念之间">
+                  <p class="media-caption">摄影作品</p>
+                </div>
+                <div>
+                  <img src="images/ksana-02.jpg" alt="一念之间">
+                </div>
+              </div>
+              -->
+              <div class="media-placeholder">暂无媒体 · 添加图片或视频</div>
+            </div>
           </div>
 
 
+          <!-- ============================================================
+               研究 Research
+          ============================================================ -->
 
-          <!-- Research Projects -->
-          <a class="project-item" href="https://roboticart.org/icra2025/" target="_blank" data-category="Research" data-title="ICRA Arts in Robotics 机器⼈学术会议排名第⼀顶会">
-            <div class="project-title">
-              <span class="en">2025 ICRA Arts in Robotics (Top Robotics Conference)</span>
-              <span class="zh">2025 ICRA Arts in Robotics（机器⼈学术会议排名第⼀顶会）</span>
+          <!-- ICRA -->
+          <div class="project-item"
+               data-category="Research"
+               data-title="ICRA Arts in Robotics 机器人学术会议排名第一顶会"
+               data-ext-link="https://roboticart.org/icra2025/"
+               onclick="toggleExpand(this)">
+
+
+            <div class="project-title-wrap">
+              <div class="project-title">
+                <span class="en">2025 ICRA Arts in Robotics (Top Robotics Conference)</span>
+                <span class="zh">2025 ICRA Arts in Robotics（机器人学术会议排名第一顶会）</span>
+              </div>
               <div class="project-meta">
                 <span class="project-tag">Research</span>
                 <span class="project-tag" data-lang="zh">五篇会议展览方案论文入选，其中四篇为第一作者</span>
                 <span class="project-tag" data-lang="en">Five exhibition papers accepted, four as first author</span>
               </div>
             </div>
-            <div class="project-year">2025</div>
-          </a>
 
-          <div class="project-item" data-category="Research" data-title="IEEE Robotics and Automation Magazine 顶刊 通过⼼跳表达情感 Expressing Emotion through Heartbeat">
-            <div class="project-title">
-              <span class="en">2026 IEEE Robotics and Automation Magazine (Top Journal)</span>
-              <span class="zh">2026 IEEE Robotics and Automation Magazine（顶刊）</span>
+            <div class="project-year">2025</div>
+            <span class="expand-indicator">&#x25BC;</span>
+
+            <div class="media-drawer">
+              <p class="media-caption" data-lang="zh" style="margin-bottom: 12px;">
+                <a href="https://roboticart.org/icra2025/" target="_blank" style="border-bottom:1px solid var(--gray-border);">在 roboticart.org 查看 →</a>
+              </p>
+              <p class="media-caption" data-lang="en" style="margin-bottom: 12px;">
+                <a href="https://roboticart.org/icra2025/" target="_blank" style="border-bottom:1px solid var(--gray-border);">View on roboticart.org →</a>
+              </p>
+              <div class="media-placeholder">暂无媒体 · 在上方链接添加图片或视频</div>
+            </div>
+          </div>
+
+
+          <!-- IEEE RAM -->
+          <div class="project-item"
+               data-category="Research"
+               data-title="IEEE Robotics and Automation Magazine 顶刊 通过心跳表达情感 Expressing Emotion through Heartbeat"
+               onclick="toggleExpand(this)">
+
+
+            <div class="project-title-wrap">
+              <div class="project-title">
+                <span class="en">2026 IEEE Robotics and Automation Magazine (Top Journal)</span>
+                <span class="zh">2026 IEEE Robotics and Automation Magazine（顶刊）</span>
+              </div>
               <div class="project-meta">
                 <span class="project-tag">Research</span>
-                <span class="project-tag" data-lang="zh">通过⼼跳表达情感：⼀种集成软传感器的软体机器⼈⼼脏在机器⼈艺术中的应⽤</span>
+                <span class="project-tag" data-lang="zh">通过心跳表达情感：一种集成软传感器的软体机器心脏在机器人艺术中的应用</span>
                 <span class="project-tag" data-lang="en">"Expressing Emotion through Heartbeat: A Soft Robotic Heart Integrated with Soft Sensor for Arts in Robotics"</span>
               </div>
             </div>
+
             <div class="project-year">2026</div>
+            <span class="expand-indicator">&#x25BC;</span>
+
+            <div class="media-drawer">
+              <!-- ▼ 论文图片示例
+              <div class="media-grid">
+                <div>
+                  <img src="images/ieee-figure.jpg" alt="IEEE论文图">
+                  <p class="media-caption">论文主图</p>
+                </div>
+              </div>
+              -->
+              <div class="media-placeholder">暂无媒体 · 添加论文图或演示视频</div>
+            </div>
           </div>
+
 
         </div>
       </section>
@@ -815,16 +1284,16 @@
             <h3 data-lang="zh">关于</h3>
             <h3 data-lang="en">About</h3>
             <p data-lang="zh">
-              刘紫茵(ZINN),科技艺术策展人,艺术项目策划管理,现任深圳市人工智能与机器人研究院(AIRS)科学+艺术联合实验室主创、第十届深港城市\建筑双城双年展(深圳)UABB执行策展人、MIT媒体实验室驻留策展人与人机交互驻留会主席。
+              刘紫茵(ZINN)，科技艺术策展人，艺术项目策划管理，现任南方科技大学 博物馆创新研究院副院长；博物馆智能机器人(筹)负责人；曾任深圳市人工智能与机器人研究院(AIRS)科学+艺术联合实验室主创、第十届深港城市\建筑双城双年展(深圳)UABB执行策展人、MIT媒体实验室驻留策展人与人机交互驻留会主席。
             </p>
             <p data-lang="en">
-              ZINN (LIU Ziyin) is an art&tech curator, art project manager, currently founding member of SciArt Colab, Shenzhen Institute of Artificial Intelligence and Robotics for Society(AIRS); Executive Curator of the 10th SZ-HK Urbanism\Architecture Bi-city Biennale (UABB), MIT Media Lab Residency Curator and HCI Symposium General Chair.
+              ZINN (LIU Ziyin) is a curator of art and technology and an art project planner/manager. She is currently Deputy Director of the Museum Innovation Institute (MII) at Southern University of Science and Technology (SUSTech) and Head of the Museum Intelligent Robotics Program (in preparation). She formerly served as Founding Member of the SciArt Co-Lab at the Shenzhen Institute of Artificial Intelligence and Robotics for Society (AIRS), Executive Curator of the 10th SZ-HK Bi-City Biennale of Urbanism\Architecture (Shenzhen) (UABB), Curator of the MIT Media Lab Residency, and General Chair of the HCI Residency Symposium.
             </p>
             <p data-lang="zh">
-              曾任AIRS研究院科技艺术展览"问题的问题"、"问题演绎"执行策展人,曾参与多项城市公共展馆策展与城市文化活动策划,研究实践方向探索科学艺术交叉领域的叙事与策展,跨学科共创与国际协作机制。
+              曾作为AIRS研究院科技艺术展览"问题的问题"、"问题演绎"执行策展人，参与多项城市公共展馆策展与城市文化活动策划，研究实践方向探索科学艺术交叉领域的叙事与策展，跨学科共创与国际协作机制。
             </p>
             <p data-lang="en">
-              She has been executive curator for art&tech exhibitions The Question of the Question and The Deduction of the Question in AIRSpace; and has participated in the curation of multiple public museums/artspaces and cultural programs. Her research and practices explore narratives and curatorial approches at the intersection of science and art, interdisciplinary co-creation and collaboration.
+              She was Executive Curator of AIRS's art&amp;tech exhibitions The Question of the Question and The Deduction of the Question, and has participated in the curation of multiple public museums and urban cultural programs. Her research and practice explore narrative and curation at the intersection of science and art, as well as interdisciplinary co-creation and international collaboration mechanisms.
             </p>
           </div>
 
@@ -832,16 +1301,16 @@
             <h3 data-lang="zh">机构</h3>
             <h3 data-lang="en">Institution</h3>
             <p data-lang="zh">
-              深圳市人工智能与机器人研究院 AIRS
+              <a href="http://mii.sustech.edu.cn/" target="_blank" style="border-bottom:1px solid var(--gray-border);">南方科技大学 博物馆创新研究院</a> MII
             </p>
             <p data-lang="en">
-              Shenzhen Institute of Artificial Intelligence and Robotics for Society (AIRS)
+              <a href="http://mii.sustech.edu.cn/" target="_blank" style="border-bottom:1px solid var(--gray-border);">Museum Innovation Institute (MII)</a>, Southern University of Science and Technology (SUSTech)
             </p>
             <p data-lang="zh" style="margin-top:12px">
-              香港中文大学(深圳) CUHK, SZ
+              博物馆智能机器人(筹)
             </p>
             <p data-lang="en" style="margin-top:12px">
-              The Chinese University of Hong Kong, Shenzhen (CUHK-SZ)
+              Museum Intelligent Robotics (in preparation)
             </p>
           </div>
 
@@ -850,11 +1319,11 @@
             <h3 data-lang="en">Contact</h3>
             <p data-lang="zh">
               <strong>邮箱 Email</strong><br />
-              liuziyin@cuhk.edu.cn
+              zinn_liuziyin@163.com
             </p>
             <p data-lang="en">
               <strong>Email</strong><br />
-              liuziyin@cuhk.edu.cn
+              zinn_liuziyin@163.com
             </p>
             <p data-lang="zh" style="margin-top:12px">
               <strong>电话 Phone</strong><br />
@@ -872,29 +1341,6 @@
               <strong>Location</strong><br />
               Shenzhen, China
             </p>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== CONTACT ===== -->
-      <section class="content-section" id="section-contact">
-        <div class="contact-section">
-          <div class="contact-row">
-            <span class="contact-label">EMAIL</span>
-            <a href="mailto:liuziyin@cuhk.edu.cn">liuziyin@cuhk.edu.cn</a>
-          </div>
-          <div class="contact-row">
-            <span class="contact-label">PHONE</span>
-            <span>+86 198 0644 8689</span>
-          </div>
-          <div class="contact-row">
-            <span class="contact-label">LOCATION</span>
-            <span data-lang="zh">中国深圳</span>
-            <span data-lang="en">Shenzhen, China</span>
-          </div>
-          <div class="contact-row">
-            <span class="contact-label">INSTITUTION</span>
-            <span>AIRS · 深圳市人工智能与机器人研究院</span>
           </div>
         </div>
       </section>
@@ -917,14 +1363,36 @@
         btn.textContent = 'EN';
       }
     }
+    // ===== EXPAND / COLLAPSE =====
+    function toggleExpand(el) {
+      el.classList.toggle('expanded');
+    }
+
+    // ===== EXTERNAL LINK BUTTON =====
+    // Add ↗ button to items that have data-ext-link
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.project-item[data-ext-link]').forEach(function(item) {
+        const titleWrap = item.querySelector('.project-title-wrap');
+        if (titleWrap) {
+          const link = document.createElement('a');
+          link.href = item.dataset.extLink;
+          link.target = '_blank';
+          link.className = 'project-external-link';
+          link.title = '查看在线版本 Open online';
+          link.innerHTML = '&#x2197;';
+          link.onclick = function(e) { e.stopPropagation(); };
+          titleWrap.appendChild(link);
+        }
+      });
+      applyFilters();
+    });
 
     // ===== SECTION NAV =====
     function showSection(id, linkEl) {
-      document.querySelectorAll('.content-section').forEach(s => s.classList.remove('visible'));
+      document.querySelectorAll('.content-section').forEach(function(s) { s.classList.remove('visible'); });
       document.getElementById('section-' + id).classList.add('visible');
 
-      // Update nav-link active states
-      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('active'); });
       if (linkEl) linkEl.classList.add('active');
     }
 
@@ -934,13 +1402,11 @@
     function filterProjects(category, el) {
       currentFilter = category;
 
-      // Update nav-link active states
-      document.querySelectorAll('.nav-link').forEach(link => {
+      document.querySelectorAll('.nav-link').forEach(function(link) {
         link.classList.remove('active');
       });
       if (el) el.classList.add('active');
 
-      // Make sure works section is visible when filtering
       const worksSection = document.getElementById('section-works');
       const aboutSection = document.getElementById('section-about');
       if (worksSection && aboutSection) {
@@ -948,17 +1414,22 @@
         aboutSection.classList.remove('visible');
       }
 
+      // Collapse all expanded items when switching category
+      document.querySelectorAll('.project-item.expanded').forEach(function(item) {
+        item.classList.remove('expanded');
+      });
+
       applyFilters();
     }
 
     function applyFilters() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const items = document.querySelectorAll('.project-item');
+      var search = document.getElementById('searchInput').value.toLowerCase();
+      var items = document.querySelectorAll('.project-item');
 
-      items.forEach(item => {
-        const catMatch = currentFilter === 'all' || item.dataset.category === currentFilter;
-        const searchMatch = !search || item.dataset.title.toLowerCase().includes(search) || item.textContent.toLowerCase().includes(search);
-        const show = catMatch && searchMatch;
+      items.forEach(function(item) {
+        var catMatch = currentFilter === 'all' || item.dataset.category === currentFilter;
+        var searchMatch = !search || item.dataset.title.toLowerCase().indexOf(search) !== -1 || item.textContent.toLowerCase().indexOf(search) !== -1;
+        var show = catMatch && searchMatch;
         item.style.display = show ? '' : 'none';
       });
     }
@@ -966,12 +1437,6 @@
     function handleSearch(val) {
       applyFilters();
     }
-
-    // Initialize filters on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      applyFilters();
-    });
-
   </script>
 </body>
 </html>
